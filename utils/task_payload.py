@@ -12,7 +12,7 @@ import subprocess
 from threading import Timer
 
 myclient = pymongo.MongoClient(
-    f"mongodb+srv://{load.user}:{load.passwd}@{load.cfg['database']['db_addr']}",
+    f"{load.cfg['database']['db_connect_method']}://{load.user}:{load.passwd}@{load.cfg['database']['db_addr']}",
     port=load.cfg["database"]["db_port"],
     connect=False,
 )
@@ -42,6 +42,13 @@ def task_buffer():
             remote = _cfg["general"]["remote"]
             src_id = task["src_id"]
             src_name = task["src_name"]
+            if "/" in src_name:
+                src_name = src_name.replace("/","|")
+            if "'" in src_name:
+                src_name = src_name.replace("'","")
+            if '"' in src_name:
+                src_name = src_name.replace('"','')
+                
             dst_id = task["dst_id"]
             src_block = remote + ":" + "{" + src_id + "}"
             dst_block = remote + ":" + "{" + dst_id + "}" + "/" + src_name 
@@ -152,8 +159,8 @@ def task_process(chat_id, command, task):
             + "📁"
             + task["dst_name"]
             + ":"
-            + "\n\n"
-            + "    📃"
+            + "\n"
+            + "    ┕─📃"
             + task["src_name"]
             + "\n"
             + "----------------------------------------"
@@ -195,7 +202,7 @@ def task_process(chat_id, command, task):
                     + "🏳️"
                     +_text[_lang]["current_task_id"]
                     + str(task["_id"])
-                    + " | iCopy - v0.2.x"
+                    + " | iCopy🔆"
                     + "\n\n"
                     + message_info
                     + "\n\n"
